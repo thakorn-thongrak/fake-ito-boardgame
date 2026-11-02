@@ -1,9 +1,12 @@
-/* ===== การ์ดบนมือ (ติดขอบล่าง เรียงเป็นพัด) ===== */
+/* ===== การ์ดบนมือ (ติดขอบล่าง เรียงเป็นพัด) =====
+   ปรับขนาดการ์ด: แก้แค่ --card-scale (1 = กว้าง 104px สูง 146px เลข 46px ทุกอย่างย่อ/ขยายตามสัดส่วน)
+   desktop ใช้ค่าในบล็อกนี้ ส่วนมือถือ (จอกว้าง <= 600px) ใช้ค่าในบล็อก @media ด้านล่าง */
 .hand,
 .hand-spacer {
-  --card-w: 104px;
-  --card-h: 146px;
-  --card-font: 46px;
+  --card-scale: 1;
+  --card-w: calc(104px * var(--card-scale));
+  --card-h: calc(146px * var(--card-scale));
+  --card-font: calc(46px * var(--card-scale));
   --hand-toolbar: 36px;
   /* ส่วนที่โผล่เหนือขอบจอ: แถบปุ่ม + การ์ดเกือบทั้งใบ (ขอบล่างการ์ดจมใต้จอเหมือนถืออยู่) */
   --hand-visible: calc(var(--hand-toolbar) + var(--card-h) * 0.86);
@@ -13,16 +16,16 @@
 @media (max-width: 600px) {
   .hand,
   .hand-spacer {
-    --card-w: 78px;
-    --card-h: 110px;
-    --card-font: 34px;
+    --card-scale: 0.92; /* 3 ใบยังเรียงพอดีจอ 360px */
     --hand-peek: 40px;
   }
 }
 
 .hand-spacer {
+  /* ต้องอยู่ท้ายสุดของหน้า: บนมือถือการ์ดผู้เล่นใช้ order: 1 ดันไปไว้หลังแชท spacer จึงต้องมากกว่านั้น */
+  order: 2;
   flex: none;
-  height: var(--hand-visible);
+  height: calc(var(--hand-visible) - 24px);
   transition: height 300ms var(--ease-out);
 }
 
@@ -42,6 +45,7 @@
 }
 
 .hand-inner {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -69,6 +73,9 @@
 }
 
 .hand-toggle {
+  position: absolute;
+  top: -20px;
+  right: -30px;
   display: grid;
   place-items: center;
   width: 32px;
@@ -108,7 +115,7 @@
   height: var(--card-h);
   margin: 0 calc(var(--card-w) * -0.09);
   border-radius: 12px;
-  background: linear-gradient(to bottom, #f6f1e3, #ddd5bf);
+  background: linear-gradient(to bottom, #717171, #908f90);
   font-family: var(--font-display);
   font-size: var(--card-font);
   font-weight: 600;
@@ -116,8 +123,13 @@
   cursor: pointer;
   box-shadow: 0 -2px 14px rgba(0, 0, 0, 0.45);
   transform-origin: 50% 140%; /* หมุนรอบจุดใต้การ์ด = เรียงโค้งแบบถือไพ่ */
-  transform: rotate(var(--rot));
+  transform: rotate(var(--rot)) translateY(var(--lift, 0px));
   transition: translate 160ms var(--ease-out);
+}
+
+/* ใบกลางของ 3 ใบ: ยกขึ้น (ค่าติดลบ = ขึ้น) ตามขนาดการ์ด */
+.play-card:nth-child(2):nth-last-child(2) {
+  --lift: calc(-10px * var(--card-scale));
 }
 
 /* หน้าการ์ดสีเข้ม (ให้สีเลขอ่านง่ายเหมือนเดิม) + เส้นขอบด้านในสองชั้น */
@@ -126,11 +138,11 @@
   content: '';
   position: absolute;
   z-index: -1;
-  border-radius: 8px;
+  border-radius: 10px;
 }
 
 .play-card::before {
-  inset: 6px;
+  inset: 4px;
   background: var(--color-tile);
   border: 1.5px solid rgba(255, 255, 255, 0.28);
 }

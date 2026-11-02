@@ -295,12 +295,8 @@ function MainPage() {
   }, [roomPath, navigate]);
 
   const renderNumbersStatus = () => {
-    if (!hasRound) {
-      return <p className="hint">{isHost ? 'เลือกจำนวนเลขต่อคน แล้วกดแจกเลขได้เลย' : `รอ ${hostName || 'host'} แจกเลข`}</p>;
-    }
-    if (myNumbers.length === 0) {
-      return <p className="hint">รอบนี้เริ่มไปแล้ว รอรอบถัดไปนะ</p>;
-    }
+    if (!hasRound) return <p className="hint">เลือกจำนวนเลขต่อคน แล้วกดแจกเลขได้เลย</p>;
+    if (myNumbers.length === 0) return <p className="hint">รอบนี้คุณไม่ได้ไพ่ (เข้ามากลางรอบ)</p>;
     return null;
   };
 
@@ -344,10 +340,11 @@ function MainPage() {
                   )}
                 </section>
 
-                <section className="card numbers-card">
-                  <h2 className="card-title">เลขของคุณ</h2>
+                {/* ส่วนแจกไพ่: เฉพาะ host (ผู้เล่นดูการ์ดบนมือที่ขอบล่างจอ) */}
+                {isHost && (
+                  <section className="card numbers-card">
+                    <h2 className="card-title">เลขของคุณ</h2>
 
-                  {isHost && (
                     <div className="deal-controls">
                       <div className="segmented" role="group" aria-label="จำนวนเลขต่อคน">
                         <span className="field-label">จำนวนเลขต่อคน</span>
@@ -368,12 +365,12 @@ function MainPage() {
                         {hasRound ? 'แจกเลขใหม่' : 'แจกเลข'} ({onlinePlayers.length} คน)
                       </button>
                     </div>
-                  )}
 
-                  {renderNumbersStatus()}
+                    {renderNumbersStatus()}
 
-                  {myNumbers.length > 0 && <p className="hint">การ์ดของคุณอยู่ด้านล่างจอ แตะการ์ดเพื่อเปิดเผยให้ทุกคนเห็น</p>}
-                </section>
+                    {myNumbers.length > 0 && <p className="hint">การ์ดของคุณอยู่ด้านล่างจอ แตะการ์ดเพื่อเปิดเผยให้ทุกคนเห็น</p>}
+                  </section>
+                )}
 
                 <HeartDisplay heart={heart} onReduceHeart={handleReduceHeart} onResetHeart={handleResetHeart} />
                 {/* มือถือ: CSS order ดันไปไว้หลังแชทเหมือนเดิม */}

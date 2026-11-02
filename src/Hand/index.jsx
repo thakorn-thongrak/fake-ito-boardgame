@@ -102,8 +102,14 @@ const Hand = ({ numbers, revealed, skipped, onOpen, ready }) => {
     setTimeout(() => { suppressClickRef.current = false; }, 0);
   };
 
+  // พับอยู่ = ยังมองไม่เห็นเลข แตะการ์ดแค่กางขึ้นมาก่อน ยืนยันลงไพ่ได้ตอนกางแล้วเท่านั้น
   const openCard = (number) => {
     if (suppressClickRef.current) return;
+    if (!isExpanded) {
+      autoCollapsedRef.current = false;
+      setIsExpanded(true);
+      return;
+    }
     onOpen(number);
   };
 
@@ -146,7 +152,7 @@ const Hand = ({ numbers, revealed, skipped, onOpen, ready }) => {
                   title={isSkipped ? 'เลขนี้โดนข้ามไปแล้ว' : undefined}
                   tabIndex={0}
                   onClick={() => openCard(value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(value); } }}
+                  onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openCard(value); } }}
                 >
                   {value}
                 </h1>

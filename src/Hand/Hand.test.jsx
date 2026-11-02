@@ -90,3 +90,24 @@ test('การ์ดที่เปิดแล้วเป็นสีเท�
   expect(cards()[0]).toHaveClass('is-revealed');
   expect(cards()[1]).toHaveClass('is-skipped');
 });
+
+test('พับอยู่แล้วแตะการ์ด: กางขึ้นมาก่อนโดยยังไม่ลงไพ่ แตะอีกครั้งตอนกางแล้วจึงลงไพ่', () => {
+  const onOpen = jest.fn();
+  renderHand({ onOpen });
+  fireEvent.click(toggle());
+  fireEvent.click(cards()[0]);
+  expect(onOpen).not.toHaveBeenCalled();
+  expect(toggle()).toHaveAttribute('aria-expanded', 'true');
+
+  fireEvent.click(cards()[0]);
+  expect(onOpen).toHaveBeenCalledWith(12);
+});
+
+test('พับอยู่แล้วกด Enter ที่การ์ด ก็แค่กางขึ้นมา', () => {
+  const onOpen = jest.fn();
+  renderHand({ onOpen });
+  fireEvent.click(toggle());
+  fireEvent.keyDown(cards()[1], { key: 'Enter' });
+  expect(onOpen).not.toHaveBeenCalled();
+  expect(toggle()).toHaveAttribute('aria-expanded', 'true');
+});
