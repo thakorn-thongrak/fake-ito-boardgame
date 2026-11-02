@@ -11,12 +11,13 @@ import CopiedIcon from "../icons/copied.svg";
 import { withTimeout, reportDbError } from '../utils/connection';
 import { showAlert, showConfirm } from '../Dialog/dialogStore';
 import { getClientId } from '../utils/clientId';
-import { snapshotToList, getLatestTopic, toNumberEntries, getMyNumbers, pickRandomUnused, getOnlinePlayers, dealNumbers, getSkippedNumbers, getNewlySkipped, numberColor } from '../utils/roomData';
+import { snapshotToList, getLatestTopic, toNumberEntries, getMyNumbers, pickRandomUnused, getOnlinePlayers, dealNumbers, getSkippedNumbers, getNewlySkipped } from '../utils/roomData';
 import { useRoomPresence } from '../hooks/useRoomPresence';
 import { useHost } from '../hooks/useHost';
 import PlayerList, { CrownIcon } from '../PlayerList';
 import Chat from '../Chat';
 import TopicNotice from '../TopicNotice';
+import Hand from '../Hand';
 import MissTaunt, { createTauntEvent } from '../MissTaunt';
 
 import '../App.css'
@@ -31,6 +32,7 @@ function MainPage() {
   const [userName, setUserName] = useState('');
   const [clientId] = useState(getClientId);
   const [numberEntries, setNumberEntries] = useState([]);
+  const [numbersLoaded, setNumbersLoaded] = useState(false);
   const [revealedNumbers, setRevealedNumbers] = useState([]);
   const [numbersPerPlayer, setNumbersPerPlayer] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -231,6 +233,7 @@ function MainPage() {
     const numbersRef = ref(db, `${roomPath}/numbers`);
     const unsubscribe = onValue(numbersRef, (snapshot) => {
       setNumberEntries(toNumberEntries(snapshotToList(snapshot)));
+      setNumbersLoaded(true);
     });
 
     return () => unsubscribe();
@@ -345,29 +348,7 @@ function MainPage() {
 
               {renderNumbersStatus()}
 
-              {myNumbers.length > 0 &&
-                <>
-                  <div className="number-tiles">
-                    {myNumbers.map((value) => (
-                      <h1
-                        key={value}
-                        className={`number-tile ${revealedSet.has(value) ? 'is-revealed' : ''} ${skippedNumbers.has(value) ? 'is-skipped' : ''}`}
-                        title={skippedNumbers.has(value) ? 'เลขนี้โดนข้ามไปแล้ว' : undefined}
-                        role="heading"
-                        aria-level={1}
-                        tabIndex={0}
-                        onClick={() => handleClickNumber(value)}
-                        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleClickNumber(value); } }}
-                        style={revealedSet.has(value) ? undefined : { color: numberColor(value) }}
-                      >
-                        {value}
-                      </h1>
-                      
-                    ))}
-                  </div>
-                  <p className="hint">แตะที่เลขเพื่อเปิดเผยให้ทุกคนเห็น</p>
-                </>
-              }
+              {myNumbers.length > 0 && <p className="hint">การ์ดของคุณอยู่ด้านล่างจอ แตะการ์ดเพื่อเปิดเผยให้ทุกคนเห็น</p>}
             </section>
 
             <HeartDisplay heart={heart} onReduceHeart={handleReduceHeart} onResetHeart={handleResetHeart} />
@@ -376,6 +357,7 @@ function MainPage() {
             <RevealNumbers roomId={roomId} />
             <MissTaunt roomPath={roomPath} />
             <TopicNotice roomPath={roomPath} silent={isHost} />
+            <Hand numbers={myNumbers} revealed={revealedSet} skipped={skippedNumbers} onOpen={handleClickNumber} ready={numbersLoaded} />
           </div>
         }
         {
